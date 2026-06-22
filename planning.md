@@ -240,9 +240,9 @@ For RE reviews, we specifically care: Can the model distinguish substantive desi
 - Chose 3 labels (not 4) because the three distinctions (analysis vs. quick_take vs. personal_story) are natural in RE community
 - Conservative data cleaning: removed trolls/memes, kept 342 reviews
 - Actual label distribution after auto-labeling + post-processing:
-  - Analysis: 147 (43.0%) — higher than planned 25-30%, suggests the community discusses mechanics frequently
+  - Analysis: 149 (43.6%) — higher than planned 25-30%, suggests the community discusses mechanics frequently
   - Quick Take: 111 (32.5%) — slightly lower than planned 40-45%
-  - Personal Story: 84 (24.6%) — matches target 20-25% perfectly
+  - Personal Story: 82 (24.0%) — close to target 20-25%
 - No single label exceeds 70% (meets M3 checkpoint requirement)
 - Boundary between Analysis ↔ Quick Take is learnable (F1=0.72 for analysis, F1=0.57 for quick_take)
 - **Critical finding:** Analysis ↔ Personal Story boundary is NOT learnable — reviews that describe personal journeys often use game design vocabulary, making them texturally identical at the token level

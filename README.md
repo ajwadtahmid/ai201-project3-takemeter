@@ -73,9 +73,9 @@ The review describes the **PLAYER'S PERSONAL EXPERIENCE, JOURNEY, or CONTEXT** w
 **Label Distribution (Final):**
 | Label | Count | Percentage | Target |
 |-------|-------|-----------|--------|
-| analysis | 147 | 43.0% | 25-30% |
+| analysis | 149 | 43.6% | 25-30% |
 | quick_take | 111 | 32.5% | 40-45% |
-| personal_story | 84 | 24.6% | 20-25% |
+| personal_story | 82 | 24.0% | 20-25% |
 
 **Data Split:** 70% train (239), 15% val (51), 15% test (52)
 
@@ -353,48 +353,43 @@ The three-label distinction requires understanding **narrative focus and intent*
 
 ---
 
-## Sample Classifications: Correct Predictions
+## Sample Classifications
 
-### ✅ Correct Analysis Classification
-**Review:** *"The dodging mechanic makes combat more engaging because it gives you real control over survival decisions."*
+The following examples are drawn from the actual test set (52 examples). The notebook only captured confidence scores for misclassified examples; correct predictions are noted without confidence scores.
 
-**Model prediction:** analysis (confidence: 0.91)
+| Review (truncated to 100 chars) | True Label | Predicted | Confidence | Result |
+|---|---|---|---|---|
+| *"low-key scary but Carlos is there sometimes"* | quick_take | quick_take | — | ✅ Correct |
+| *"Do not let the title fool you: Resident Evil 3 (2020) pivots hard away from the Metroidvania puzzle-box design of the RE2 Remake. It trades branching paths and exploration for a highly linear, corridor-style..."* | analysis | analysis | — | ✅ Correct |
+| *"Its true to the original, takes me back to my PS1 days, just great, and still very difficult"* | personal_story | analysis | 0.53 | ❌ Misclassified |
+| *"Amazing game, the RPD level design is a masterpiece"* | analysis | analysis | — | ✅ Correct |
+| *"This game made me pee my pants, thanks capcom"* | quick_take | quick_take | — | ✅ Correct |
 
-**Why correct:** The review explicitly connects mechanic (dodging) to gameplay impact (control over decisions) with a clear causal chain (because). This is the textbook definition of analysis. Model correctly identified the explanation structure.
+**Why the correct analysis predictions are reasonable:**
+The model correctly classified all 23 analysis examples in the test set (100% recall). Reviews like the RE3 example above contain explicit design vocabulary combined with causal reasoning ("pivots hard away from," "trades X for Y") — the exact pattern the model learned to associate with analysis. Short, claim-only reviews like "RPD level design is a masterpiece" fall into analysis because they reference specific design elements, even without full causal explanation; the model over-generalizes here but happens to be correct.
 
----
+**Why the quick_take predictions are reasonable:**
+"Low-key scary but Carlos is there sometimes" is 8 words with no reasoning arc — pure reactive observation. "This game made me pee my pants, thanks capcom" is a single emotional reaction. Both lack the feature vocabulary and length the model associates with analysis.
 
-### ✅ Correct Quick Take Classification
-**Review:** *"This game is amazing, truly one of the best."*
-
-**Model prediction:** quick_take (confidence: 0.88)
-
-**Why correct:** Short (9 words), no personal context, no mechanics explanation—pure quality assertion. Model correctly identified the brevity and lack of depth. The absence of design vocabulary (mechanics, compare, because) helped distinguish it from analysis.
-
----
-
-### ✅ Correct Personal Story Classification (Rare)
-**Review:** *"I played this as a kid on PS1, and coming back to this remake years later made me realize how much I loved this series."*
-
-**Model prediction:** personal_story (confidence: 0.72)
-
-**Why correct:** Despite containing "PS1" and "remake" (design-adjacent vocabulary), the model correctly focused on the personal journey markers: "as a kid," "coming back," "years later," "realized," "loved." The temporal narrative arc ("then...now") and personal perspective ("I...me") were weighted appropriately.
-
-**Note:** This was one of the rare correct personal_story predictions because the personal journey language was very explicit and the design vocabulary was minimal.
+**Note on personal_story (0/12 correct):** The model predicted 0 personal_story labels in the test set. The misclassified example above ("takes me back to my PS1 days") contains comparison language ("true to the original") that triggered the analysis prediction despite the personal nostalgia framing.
 
 ---
 
 ## AI Usage Disclosure
 
 ### 1. Mistral 7B Auto-Labeling
-**What we did:** Used Mistral 7B running locally via Ollama to auto-label all 342 reviews before manual review.
+**What we did:** Used Mistral 7B running locally via Ollama as an annotation assistant across all 342 reviews in a three-pass workflow.
 
-**How it changed our understanding:** 
-- Initial labeling: used simpler keyword heuristics, produced mislabeled data
-- Refined labeling: Updated prompts to prioritize personal_story detection when personal context keywords were present
-- **Key finding:** Even with explicit instructions, ~33 personal_story examples retained analysis-keyword language, showing the inherent overlap between the two categories
+**Process:**
+1. **Pass 1 — Initial auto-labeling:** Mistral applied keyword-based heuristics; produced a first-pass label for each review.
+2. **Pass 2 — Refinement:** Re-ran with updated prompts that prioritized personal_story detection when personal context keywords were present, reducing analysis/personal_story confusion.
+3. **Pass 3 — Manual review and correction:** Individually read each review against the label definitions, correcting cases where mechanics vocabulary masked personal intent, word count didn't match the assigned label, or the boundary-case decision rules applied. ~50 corrections were applied in this pass.
 
-**What we changed:** Manually reviewed and corrected ~50 reviews post-processing, catching instances where mechanics vocabulary masked personal intent.
+**How it changed our understanding:**
+- Even with explicit instructions, ~33 personal_story examples retained analysis-keyword language, showing the inherent overlap between the two categories
+- The need for multiple correction passes confirmed that the personal_story/analysis boundary is not reliably learnable from surface keywords alone
+
+**What we changed:** Updated the label definitions after Pass 1 to add explicit "NOT [label]" examples, which sharpened annotations in Passes 2 and 3.
 
 ---
 
