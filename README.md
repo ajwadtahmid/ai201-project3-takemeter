@@ -144,7 +144,7 @@ The review describes the **PLAYER'S PERSONAL EXPERIENCE, JOURNEY, or CONTEXT** w
 - Epochs: 3
 - Weight decay: 0.01 (to prevent overfitting on 239 training examples)
 - Training time: ~5 minutes on T4 GPU
-- Early stopping: Patience 2, monitored on validation accuracy
+- Best model selection: loaded best checkpoint by validation accuracy at end of 3 epochs (`load_best_model_at_end=True`)
 
 **Results:**
 
